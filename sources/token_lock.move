@@ -16,6 +16,11 @@ module main::token_lock {
     use std::signer;
     use std::string::{Self, String};
     use aptos_framework::timestamp;
+    use std::vector;
+
+    use std::string::utf8;
+    use aptos_std::debug;
+    use aptos_std::debug::print;
 
     /// The token does not exist
     const ETOKEN_DOES_NOT_EXIST: u64 = 1;
@@ -79,7 +84,7 @@ module main::token_lock {
         )
     }
 
-    entry fun add_token_lock(
+    public entry fun add_token_lock(
         from: &signer,
         token_address: address,
         amount: u64,
@@ -148,7 +153,7 @@ module main::token_lock {
         };
     }
 
-    entry fun claim(caller: &signer, row_id: u64) acquires TokenLockCapability {
+    public entry fun claim(caller: &signer, row_id: u64) acquires TokenLockCapability {
         // assert!(is_finalized(token_address), ENOT_FINALIZED);
         let token_lock_table =
             &mut borrow_global_mut<TokenLockCapability>(capability_address()).token_lock_table;
@@ -169,16 +174,28 @@ module main::token_lock {
             locked_token_row.initial_amount - locked_token_row.balance_amount;
         let target_claim_amount =
             (
-                (timestamp::now_microseconds() - locked_token_row.cliff_timestamp) / locked_token_row
-                .vesting_duration
-            ) * locked_token_row.initial_amount;
+                ((timestamp::now_microseconds() - locked_token_row.cliff_timestamp) * locked_token_row.initial_amount) / locked_token_row.vesting_duration
+            ) ;
         if (target_claim_amount > locked_token_row.initial_amount) {
             target_claim_amount = locked_token_row.initial_amount
         };
 
         let amount = target_claim_amount - claimed_amount;
         let min_claim_amount = locked_token_row.initial_amount * locked_token_row.periodicity / locked_token_row.vesting_duration;
-        assert!(amount > min_claim_amount, EPERIOD_NOT_PASSED);
+        // debug::print(&utf8(b"timeDiff:"));
+        // debug::print(&(timestamp::now_microseconds() - locked_token_row.cliff_timestamp));
+        // debug::print(&utf8(b"vesting duration:"));
+        // debug::print(&locked_token_row.vesting_duration);
+        // debug::print(&utf8(b"initial amount:"));
+        // debug::print(&locked_token_row.initial_amount);
+        // debug::print(&utf8(b"target_claim_amount:"));
+        // debug::print(&target_claim_amount);
+        // debug::print(&utf8(b"amount:"));
+        // debug::print(&amount);
+        // debug::print(&utf8(b"min_claim_amount:"));
+        // debug::print(&min_claim_amount);
+        
+        assert!(amount >= min_claim_amount, EPERIOD_NOT_PASSED);
 
 
         locked_token_row.balance_amount = locked_token_row.balance_amount - amount;
@@ -214,6 +231,29 @@ module main::token_lock {
         account::create_resource_address(&@main, APP_SIGNER_CAPABILITY_SEED)
     }
 
+    #[view]
+    public fun get_user_token_locks(user_addr: address): vector<LockedTokenRow> acquires TokenLockCapability {
+        let user_address_map = &borrow_global<TokenLockCapability>(capability_address()).user_address_map;
+        let user_smart_table = simple_map::borrow(user_address_map, &user_addr);
+        let row_ids = smart_table::keys(user_smart_table);
+        let output: vector<LockedTokenRow> = vector::empty();
+        let i = 0;
+        let len = vector::length(&row_ids);
+        
+        while (i < len) {
+            let row_id = vector::borrow(&row_ids, i);
+            let locked_token_row = get_token_lock_row(*row_id);
+            vector::push_back(&mut output, locked_token_row);
+            i = i + 1;
+        };
+        output
+    }
+
+    #[view]
+    public fun get_token_lock_row(row_id: u64): LockedTokenRow acquires TokenLockCapability {
+        let token_lock_table = &borrow_global<TokenLockCapability>(capability_address()).token_lock_table;
+        *smart_table::borrow(token_lock_table, row_id)
+    }
     // #[view]
     // public fun is_finalized(token_address: address): bool acquires TokenLockCapability {
     //     let token_address_map =
