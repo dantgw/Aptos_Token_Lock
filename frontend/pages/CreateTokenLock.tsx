@@ -1,6 +1,7 @@
 import { isAptosConnectWallet, useWallet } from "@aptos-labs/wallet-adapter-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
+
 // Internal components
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,28 +12,33 @@ import { UploadSpinner } from "@/components/UploadSpinner";
 import { LabeledInput } from "@/components/ui/labeled-input";
 import { ConfirmButton } from "@/components/ui/confirm-button";
 import { LaunchpadHeader } from "@/components/LaunchpadHeader";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast"
+
 // Internal utils
 import { checkIfFund, uploadFile } from "@/utils/Irys";
 import { aptosClient } from "@/utils/aptosClient";
+
 // Internal constants
 import { CREATOR_ADDRESS } from "@/constants";
 // Entry functions
 import { createAsset } from "@/entry-functions/create_asset";
 import { createTokenLock } from "@/entry-functions/create_token_lock";
 import { DateTimeInput } from "@/components/ui/date-time-input";
-import { dateToMicroseconds, formatTimeForInput } from "@/lib/utils";
+import { dateToMicroseconds, daysToMicroseconds, formatTimeForInput, monthsToMicroseconds } from "@/lib/utils";
 
 export function CreateTokenLock() {
   // Wallet Adapter provider
+
   const aptosWallet = useWallet();
   const { account, wallet, signAndSubmitTransaction } = useWallet();
+  const { toast } = useToast()
 
 
   // Collection data entered by the user on UI
   const [tokenAddress, setTokenAddress] = useState<string>("");
   const [amount, setAmount] = useState<number>(0);
   const [cliffDateTime, setCliffDateTime] = useState<Date>(new Date());
-  const [cliffUTCDateTime, setCliffUTCDateTime] = useState<Date>(new Date());
 
   const [vestingDuration, setVestingDuration] = useState<number>(0);
   const [periodicity, setPeriodicity] = useState<number>(0);
@@ -42,11 +48,11 @@ export function CreateTokenLock() {
   const [isUploading, setIsUploading] = useState(false);
 
 
-  const disableCreateAssetButton =
+  const disableCreateSubmitButton =
     !tokenAddress || !amount || !cliffDateTime || !periodicity || !claimantAddress || !vestingDuration || !account || isUploading;
 
   // On create asset button clicked
-  const onCreateAsset = async () => {
+  const onCreateTokenLock = async () => {
     try {
       if (!account) throw new Error("Connect wallet first");
 
@@ -56,7 +62,7 @@ export function CreateTokenLock() {
       // Submit a create_fa entry function transaction
       const response = await signAndSubmitTransaction(
         createTokenLock({
-          tokenAddress, amount, cliffTimestamp: dateToMicroseconds(cliffUTCDateTime), vestingDuration, periodicity, claimantAddress
+          tokenAddress, amount, cliffTimestamp: dateToMicroseconds(cliffDateTime), vestingDuration, periodicity, claimantAddress
         }),
       );
 
@@ -68,9 +74,16 @@ export function CreateTokenLock() {
       // Once the transaction has been successfully commited to chain, navigate to the `my-assets` page
       if (committedTransactionResponse.success) {
         // navigate(`/my-assets`, { replace: true });
+        toast({
+          title: "Transaction Successful",
+          description: "Your token lock has been created successfully.",
+          duration: 5000
+        })
       }
     } catch (error) {
       alert(error);
+      setIsUploading(false);
+
     } finally {
       setIsUploading(false);
     }
@@ -123,6 +136,7 @@ export function CreateTokenLock() {
           />
 
           <DateTimeInput
+            className="my-4"
             id="cliff-timestamp"
             title="Cliff Timestamp"
             tooltip="The time after which the asset can start to be withdrawn."
@@ -138,12 +152,7 @@ export function CreateTokenLock() {
 
                 setCliffDateTime(newDate);
 
-                const newUTCDate = new Date(cliffDateTime);
-
-
-
                 console.log("Cliff microseconds:", dateToMicroseconds(newDate));
-                console.log("Cliff microseconds 2:", dateToMicroseconds(cliffDateTime));
 
               }
               console.log("Date changed:", date);
@@ -158,26 +167,59 @@ export function CreateTokenLock() {
               setCliffDateTime(newDate);
 
               console.log("Time changed:", e.target.value, "New date:", newDate);
-              console.log("Cliff microseconds:", dateToMicroseconds(cliffDateTime));
+              console.log("Cliff microseconds:", dateToMicroseconds(newDate));
 
             }}
 
             disabled={isUploading || !account}
           />
 
+          {/* <div>{dateToMicroseconds(cliffDateTime)}</div> */}
 
+          <div className="space-y-2 my-4">
+            <Label htmlFor="vesting-duration">Vesting Duration</Label>
+            <Select
+              required
+              disabled={isUploading || !account}
+              onValueChange={(value) => setVestingDuration(Number(value))}>
+              <SelectTrigger id="vesting-duration">
+                <SelectValue placeholder="Select vesting duration" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={monthsToMicroseconds(1).toString()}>1 month</SelectItem>
+                <SelectItem value={monthsToMicroseconds(3).toString()}>3 months</SelectItem>
+                <SelectItem value={monthsToMicroseconds(6).toString()}>6 months</SelectItem>
+                <SelectItem value={monthsToMicroseconds(12).toString()}>1 year</SelectItem>
+                <SelectItem value={monthsToMicroseconds(24).toString()}>2 years</SelectItem>
+                <SelectItem value={monthsToMicroseconds(36).toString()}>3 years</SelectItem>
+                <SelectItem value={monthsToMicroseconds(48).toString()}>4 years</SelectItem>
+                <SelectItem value={monthsToMicroseconds(60).toString()}>5 years</SelectItem>
+                <SelectItem value={monthsToMicroseconds(120).toString()}>10 years</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <LabeledInput
-            id="vesting-duration"
-            label="Vesting Duration"
-            tooltip="The duration in which the asset is vested"
-            required
-            onChange={(e) => setVestingDuration(Number(e.target.value))}
-            disabled={isUploading || !account}
-            type="number"
-          />
+          <div className="space-y-2 my-4">
+            <Label htmlFor="vesting-duration">Periodicity</Label>
+            <Select
+              required
+              disabled={isUploading || !account}
+              onValueChange={(value) => setPeriodicity(Number(value))}>
+              <SelectTrigger id="vesting-duration">
+                <SelectValue placeholder="Select how often users can claim" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={daysToMicroseconds(1).toString()}>Daily</SelectItem>
+                <SelectItem value={daysToMicroseconds(7).toString()}>Weekly</SelectItem>
+                <SelectItem value={monthsToMicroseconds(1).toString()}>Monthly</SelectItem>
+                <SelectItem value={monthsToMicroseconds(3).toString()}>Quarterly</SelectItem>
+                <SelectItem value={monthsToMicroseconds(6).toString()}>Bi-annually</SelectItem>
+                <SelectItem value={monthsToMicroseconds(12).toString()}>Annually</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <LabeledInput
+          {/* <LabeledInput
             id="periodicity"
             label="Periodicity"
             tooltip="How often the tokens are released."
@@ -185,7 +227,7 @@ export function CreateTokenLock() {
             onChange={(e) => setPeriodicity(Number(e.target.value))}
             disabled={isUploading || !account}
             type="number"
-          />
+          /> */}
 
           <LabeledInput
             id="claimant-address"
@@ -198,14 +240,15 @@ export function CreateTokenLock() {
           />
 
           <ConfirmButton
-            title="Create Asset"
+            title="Create Token Lock"
             className="self-start"
-            onSubmit={onCreateAsset}
-            disabled={disableCreateAssetButton}
+            onSubmit={onCreateTokenLock}
+            disabled={disableCreateSubmitButton}
             confirmMessage={
               <>
                 <p>
-                  The upload process requires at least 1 message signatures.
+                  Please ensure that the entered fields are correct.
+                  Proceed to sign the Token Lock Transaction to continue.
                 </p>
               </>
             }

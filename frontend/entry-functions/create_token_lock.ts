@@ -1,4 +1,4 @@
-import { InputTransactionData } from "@aptos-labs/wallet-adapter-react";
+import { InputTransactionData, TxnBuilderTypes } from "@aptos-labs/wallet-adapter-react";
 // Internal utils
 import {
   APT_DECIMALS,
@@ -6,6 +6,8 @@ import {
   convertAmountFromOnChainToHumanReadable,
 } from "@/utils/helpers";
 import { MODULE_ADDRESS } from "@/constants";
+import { AccountAddress, } from "@aptos-labs/ts-sdk";
+import { BCS } from "aptos"
 
 export type CreateTokenLockArguments = {
   tokenAddress: string; // The token address
@@ -20,12 +22,15 @@ export type CreateTokenLockArguments = {
 export const createTokenLock = (args: CreateTokenLockArguments): InputTransactionData => {
   const { tokenAddress, amount, cliffTimestamp, vestingDuration, periodicity, claimantAddress } =
     args;
+  console.log(args)
   return {
     data: {
       function: `${MODULE_ADDRESS}::token_lock::add_token_lock`,
       typeArguments: [],
       functionArguments: [
-        tokenAddress, amount, cliffTimestamp, vestingDuration, periodicity, claimantAddress
+        tokenAddress,
+        amount, cliffTimestamp, vestingDuration, periodicity,
+        claimantAddress,
       ],
     },
   };
