@@ -47,6 +47,10 @@ module main::token_lock {
 
     const DAY_IN_MICROSECONDS: u64 = 24 * 60 * 60 * 1000_000;
 
+    // TODO: ADD EVENT FOR TOKEN LOCK ROW ADDED
+    // TODO: ADD EVENT FOR TOKENS CLAIMED
+
+
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
     struct TokenLockCapability has key {
         signer_cap: SignerCapability,

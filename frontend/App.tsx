@@ -3,6 +3,8 @@ import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
 import { Mint } from "@/pages/Mint";
 import { CreateFungibleAsset } from "@/pages/CreateFungibleAsset";
 import { MyFungibleAssets } from "@/pages/MyFungibleAssets";
+import { MyTokenLocks } from "./pages/MyTokenLocks";
+import { CreateTokenLock } from "./pages/CreateTokenLock";
 
 function Layout() {
   return (
@@ -27,6 +29,14 @@ const router = createBrowserRouter([
       {
         path: "my-assets",
         element: <MyFungibleAssets />,
+      },
+      {
+        path: "my-token-locks",
+        element: <MyTokenLocks />,
+      },
+      {
+        path: "create-token-lock",
+        element: <CreateTokenLock />,
       },
     ],
   },

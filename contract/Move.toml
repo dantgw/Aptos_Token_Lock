@@ -3,9 +3,9 @@ name = "main"
 version = "1.0.0"
 
 [addresses]
-main = "bba39d1e7e7f253df025d7c5079fd3be7eced4312509fba5946410143e2bda18"
-launchpad_addr = "bba39d1e7e7f253df025d7c5079fd3be7eced4312509fba5946410143e2bda18"
-initial_creator_addr = "bba39d1e7e7f253df025d7c5079fd3be7eced4312509fba5946410143e2bda18"
+main = "7cff349ab733d76e33ef10a770720bb4474af15905808410cd1ccf5ee05b37f9"
+launchpad_addr = "7cff349ab733d76e33ef10a770720bb4474af15905808410cd1ccf5ee05b37f9"
+initial_creator_addr = "7cff349ab733d76e33ef10a770720bb4474af15905808410cd1ccf5ee05b37f9"
 aptos_framework = "0x1"
 
 [dependencies.AptosFramework]
