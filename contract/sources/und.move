@@ -127,6 +127,16 @@ module main::und {
         );
     }
 
+    // public entry fun create_token(creator: &signer, collection_description: String, 
+    //     collection_supply: u64, collection_name: String, collection_uri: String,
+    //     token_description: String, token_name: String, token_uri: String, 
+    //     fungible_asset_name: String, fungible_asset_symbol: String, 
+    //     icon_uri: String, project_uri: String
+    // ){
+
+
+    // }
+
     fun create_und_token_collection(creator: &signer) {
         // Constructs the strings from the bytes.
         let description = string::utf8(UND_COLLECTION_DESCRIPTION);

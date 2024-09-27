@@ -202,6 +202,47 @@ module main::token_lock_test {
     }
 
     #[test(creator = @main, user1 = @0x456, user2 = @0x789, aptos_framework = @aptos_framework)]
+    #[expected_failure(abort_code = EPERIOD_NOT_PASSED, location = main::token_lock)]
+    public fun test_claim_period_not_passed(
+        creator: &signer, user1: &signer, user2: &signer, aptos_framework: &signer
+    ) {
+        und::initialize_for_test(creator);
+        token_lock::initialize_for_test(creator);
+        timestamp::set_time_has_started_for_testing(aptos_framework);
+
+        let user1_addr = signer::address_of(user1);
+        let user2_addr = signer::address_of(user2);
+        let creator_addr = signer::address_of(creator);
+
+        und::mint_und(creator, 100_000_000);
+        assert!(und::und_balance(creator_addr) == 100_000_000, 0);
+
+        let deposit_amount = 40_000_000;
+        let cliff_timestamp = 100_000;
+        let vesting_duration = 100_000;
+        let periodicity = 1000;
+        let claimant_address = user1_addr;
+
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, claimant_address 
+            );
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, user2_addr 
+            );
+        timestamp::update_global_time_for_test(110_000);
+        token_lock::claim(user1, 0);
+        assert!(und::und_balance(user1_addr) == 4_000_000, 0);
+        token_lock::claim(user1, 0);
+        
+        timestamp::update_global_time_for_test(120_000);
+        
+    }
+
+    #[test(creator = @main, user1 = @0x456, user2 = @0x789, aptos_framework = @aptos_framework)]
     #[expected_failure(abort_code = EINVALID_DATA, location = main::token_lock)]
     public fun test_wrong_claimant(
         creator: &signer, user1: &signer, user2: &signer, aptos_framework: &signer
