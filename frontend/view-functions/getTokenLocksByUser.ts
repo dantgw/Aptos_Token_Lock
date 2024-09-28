@@ -7,6 +7,7 @@ export type GetTokenLocksByUserArguments = {
 };
 
 export type GetTokenLocksByUserRow = {
+  row_id: number,
   admin_address: string,
   balance_amount: number,
   claimant_address: string,

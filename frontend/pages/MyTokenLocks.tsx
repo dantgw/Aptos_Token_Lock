@@ -8,17 +8,67 @@ import { convertAmountFromOnChainToHumanReadable } from "@/utils/helpers";
 import { IS_PROD, NETWORK } from "@/constants";
 import { Section } from "lucide-react";
 import { useGetTokenLocksByUser } from "@/hooks/useGetTokenLocksByUser";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { microsecondsToLocalTime, microsecondsToTimeString } from "@/lib/utils";
 import { truncateAddress } from "@/utils/truncateAddress";
 import { Button } from "@/components/ui/button";
+import { ConfirmButton } from "@/components/ui/confirm-button";
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { useToast } from "@/components/ui/use-toast";
+import { aptosClient } from "@/utils/aptosClient";
+import { claimToken } from "@/entry-functions/claim_token";
 
 export function MyTokenLocks() {
 
   const tokenLocks = useGetTokenLocksByUser();
+  const aptosWallet = useWallet();
+  const { account, wallet, signAndSubmitTransaction } = useWallet();
+  const { toast } = useToast()
+
+  const [isUploading, setIsUploading] = useState(false);
+
+  const disableClaimSubmitButton = !account || isUploading;
+
+
+  const onClaimTokenLock = async (row_id: number) => {
+    try {
+      if (!account) throw new Error("Connect wallet first");
+
+      // Set internal isUploading state
+      setIsUploading(true);
+
+      // Submit a create_fa entry function transaction
+      const response = await signAndSubmitTransaction(
+        claimToken({
+          row_id
+        }),
+      );
+
+      // Wait for the transaction to be commited to chain
+      const committedTransactionResponse = await aptosClient().waitForTransaction({
+        transactionHash: response.hash,
+      });
+
+      // Once the transaction has been successfully commited to chain, navigate to the `my-assets` page
+      if (committedTransactionResponse.success) {
+        // navigate(`/my-assets`, { replace: true });
+        toast({
+          title: "Transaction Successful",
+          description: "You have claimed tokens from the lock successfully.",
+          duration: 5000
+        })
+
+      }
+    } catch (error) {
+      alert(error);
+      setIsUploading(false);
+
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   useEffect(() => {
-
     console.log("tokenLocks", tokenLocks)
   }, [tokenLocks])
   return (
@@ -60,7 +110,19 @@ export function MyTokenLocks() {
                     <TableCell>{tokenLock.initial_amount}</TableCell>
                     <TableCell>{tokenLock.balance_amount}</TableCell>
                     <TableCell>{microsecondsToLocalTime(tokenLock.last_claimed_timestamp)}</TableCell>
-                    <TableCell><Button>Claim</Button></TableCell>
+                    <TableCell> <ConfirmButton
+                      title="Claim"
+                      className="self-start"
+                      onSubmit={() => onClaimTokenLock(tokenLock.row_id)}
+                      disabled={disableClaimSubmitButton}
+                      confirmMessage={
+                        <>
+                          <p>
+                            Proceed to sign the Transaction to claim your tokens.
+                          </p>
+                        </>
+                      }
+                    /></TableCell>
 
                   </TableRow>
                 );
