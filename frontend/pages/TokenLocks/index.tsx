@@ -24,6 +24,7 @@ import { createTokenLock } from "@/entry-functions/create_token_lock";
 import { DateTimeInput } from "@/components/ui/date-time-input";
 import { dateToMicroseconds, daysToMicroseconds, formatTimeForInput, monthsToMicroseconds } from "@/lib/utils";
 import { useGetTokenLocksByTokenAddress } from "@/hooks/useGetTokenLocksByTokenAddress";
+import TokenUnlockGraph from "./components/TokenUnlockGraph";
 
 export function TokenLocks() {
   // Wallet Adapter provider
@@ -59,6 +60,7 @@ export function TokenLocks() {
             value={tokenAddress}
           />
           <div>{tokenLocks?.[0]?.balance_amount}</div>
+          <TokenUnlockGraph />
         </div>
       </div>
     </>
