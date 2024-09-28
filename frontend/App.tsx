@@ -6,6 +6,7 @@ import { MyFungibleAssets } from "@/pages/MyFungibleAssets";
 import { MyTokenLocks } from "./pages/MyTokenLocks";
 import { CreateTokenLock } from "./pages/CreateTokenLock";
 import { Home } from "./pages/Home";
+import { TokenLocks } from "./pages/TokenLocks";
 
 function Layout() {
   return (
@@ -23,13 +24,17 @@ const router = createBrowserRouter([
         path: "/",
         element: <Home />,
       },
+      // {
+      //   path: "create-asset",
+      //   element: <CreateFungibleAsset />,
+      // },
+      // {
+      //   path: "my-assets",
+      //   element: <MyFungibleAssets />,
+      // },
       {
-        path: "create-asset",
-        element: <CreateFungibleAsset />,
-      },
-      {
-        path: "my-assets",
-        element: <MyFungibleAssets />,
+        path: "token-locks",
+        element: <TokenLocks />,
       },
       {
         path: "my-token-locks",

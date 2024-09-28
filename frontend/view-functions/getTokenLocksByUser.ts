@@ -23,11 +23,17 @@ export type GetTokenLocksByUserRow = {
 export type GetTokenLocksByUserResponse = GetTokenLocksByUserRow[]
 
 export const getTokenLocksByUser = async ({ user_address }: GetTokenLocksByUserArguments) => {
-  const tokenLocks = await aptosClient().view<[[GetTokenLocksByUserRow]]>({
-    payload: {
-      function: `${AccountAddress.from(MODULE_ADDRESS)}::token_lock::get_token_locks_by_user`,
-      functionArguments: [user_address]
-    },
-  });
-  return tokenLocks;
+  try {
+
+
+    const tokenLocks = await aptosClient().view<[[GetTokenLocksByUserRow]]>({
+      payload: {
+        function: `${AccountAddress.from(MODULE_ADDRESS)}::token_lock::get_token_locks_by_user`,
+        functionArguments: [user_address]
+      },
+    });
+    return tokenLocks;
+  } catch (error) {
+    console.log(error)
+  }
 };

@@ -16,6 +16,9 @@ export const LaunchpadHeader: FC<LaunchpadHeaderProps> = ({ title }) => {
     <div className="flex items-center justify-between py-2 px-4 mx-auto w-full max-w-screen-xl flex-wrap">
       <h2 className="display">{title}</h2>
       <div className="flex gap-2 items-center">
+        <Link className={buttonVariants({ variant: "link" })} to={"/token-locks"}>
+          Token Locks
+        </Link>
         <Link className={buttonVariants({ variant: "link" })} to={"/my-token-locks"}>
           My Token Locks
         </Link>

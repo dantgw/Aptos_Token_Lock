@@ -20,6 +20,9 @@ export function useGetTokenLocksByUser() {
   const fetchTokenLocksByUser = async ({ user_address }: GetTokenLocksByUserArguments) => {
     if (user_address) {
       const result = await getTokenLocksByUser({ user_address: user_address })
+      if (!result) {
+        return
+      }
       setTokenLocks(result[0] as GetTokenLocksByUserResponse);
     }
   }
