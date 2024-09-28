@@ -20,7 +20,7 @@ import { claimToken } from "@/entry-functions/claim_token";
 
 export function MyTokenLocks() {
 
-  const tokenLocks = useGetTokenLocksByUser();
+  const { tokenLocks, refetchTokenLocksByUser } = useGetTokenLocksByUser();
   const aptosWallet = useWallet();
   const { account, wallet, signAndSubmitTransaction } = useWallet();
   const { toast } = useToast()
@@ -57,6 +57,7 @@ export function MyTokenLocks() {
           description: "You have claimed tokens from the lock successfully.",
           duration: 5000
         })
+        refetchTokenLocksByUser()
 
       }
     } catch (error) {

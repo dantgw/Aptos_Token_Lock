@@ -13,6 +13,7 @@ import { GetTokenLocksByUserArguments } from "@/view-functions/getTokenLocksByUs
 export function useGetTokenLocksByUser() {
   const [tokenLocks, setTokenLocks] = useState<GetTokenLocksByUserResponse>([]);
   const { account } = useWallet();
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
 
   const walletAddress = account?.address
 
@@ -23,6 +24,9 @@ export function useGetTokenLocksByUser() {
     }
   }
 
+  const refetchTokenLocksByUser = () => setRefetchTrigger(prev => prev + 1);
+
+
   useEffect(() => {
     // fetch the contract registry address
     if (walletAddress) {
@@ -30,5 +34,5 @@ export function useGetTokenLocksByUser() {
     }
 
   }, [walletAddress]);
-  return tokenLocks
+  return { tokenLocks, refetchTokenLocksByUser }
 }
