@@ -91,7 +91,7 @@ export function CreateTokenLock() {
 
   return (
     <>
-      <LaunchpadHeader title="Create Asset" />
+      <LaunchpadHeader title="Create Token Lock" />
       <div className="flex flex-col md:flex-row items-start justify-between px-4 py-2 gap-4 max-w-screen-xl mx-auto">
         <div className="w-full md:w-2/3 flex flex-col gap-y-4 order-2 md:order-1">
           {(!account || account.address !== CREATOR_ADDRESS) && (
@@ -139,7 +139,7 @@ export function CreateTokenLock() {
             className="my-4"
             id="cliff-timestamp"
             title="Cliff Timestamp"
-            tooltip="The time after which the asset can start to be withdrawn."
+            tooltip="The time after which the asset can start to be withdrawn. This is in Local Time."
             required
             date={cliffDateTime}
             time={formatTimeForInput(cliffDateTime)}

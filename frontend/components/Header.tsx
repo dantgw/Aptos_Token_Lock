@@ -25,16 +25,16 @@ export function Header() {
       </h1>
 
       <div className="flex gap-2 items-center flex-wrap">
-        {IS_DEV && (
-          <>
-            <Link className={buttonVariants({ variant: "link" })} to={"/my-assets"}>
-              My Assets
-            </Link>
-            <Link className={buttonVariants({ variant: "link" })} to={"/create-asset"}>
-              Create Asset
-            </Link>
-          </>
-        )}
+
+        <>
+          <Link className={buttonVariants({ variant: "link" })} to={"/my-token-locks"}>
+            My Token Locks
+          </Link>
+          <Link className={buttonVariants({ variant: "link" })} to={"/create-token-lock"}>
+            Add Token Lock
+          </Link>
+        </>
+
 
         <WalletSelector />
       </div>

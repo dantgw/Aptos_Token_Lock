@@ -60,6 +60,7 @@ module main::token_lock {
     }
 
     struct LockedTokenRow has store, copy, drop {
+        row_id: u64,
         token_address: address,
         cliff_timestamp: u64,
         vesting_duration: u64,
@@ -107,6 +108,7 @@ module main::token_lock {
         let token_lock_table_length = aptos_std::smart_table::length(token_lock_table);
         let caller_addr = signer::address_of(from);
         let locked_tokens = LockedTokenRow {
+            row_id: token_lock_table_length,
             token_address,
             cliff_timestamp,
             vesting_duration,
@@ -276,6 +278,7 @@ module main::token_lock {
         let token_lock_table = &borrow_global<TokenLockCapability>(capability_address()).token_lock_table;
         *smart_table::borrow(token_lock_table, row_id)
     }
+
     // #[view]
     // public fun is_finalized(token_address: address): bool acquires TokenLockCapability {
     //     let token_address_map =

@@ -5,6 +5,7 @@ import { CreateFungibleAsset } from "@/pages/CreateFungibleAsset";
 import { MyFungibleAssets } from "@/pages/MyFungibleAssets";
 import { MyTokenLocks } from "./pages/MyTokenLocks";
 import { CreateTokenLock } from "./pages/CreateTokenLock";
+import { Home } from "./pages/Home";
 
 function Layout() {
   return (
@@ -20,7 +21,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Mint />,
+        element: <Home />,
       },
       {
         path: "create-asset",
