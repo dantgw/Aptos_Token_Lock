@@ -23,7 +23,7 @@ export const LaunchpadHeader: FC<LaunchpadHeaderProps> = ({ title }) => {
           My Token Locks
         </Link>
         <Link className={buttonVariants({ variant: "link" })} to={"/create-token-lock"}>
-          Add Token Lock
+          Lock
         </Link>
 
         <WalletSelector />

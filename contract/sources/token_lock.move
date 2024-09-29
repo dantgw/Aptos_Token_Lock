@@ -73,6 +73,22 @@ module main::token_lock {
         deposit_timestamp: u64
     }
 
+    #[event]
+    struct LockEvent has drop, store {
+        row_id: u64,
+        admin_address: address,
+        claimant_address: address,
+        amount: u64
+    }
+
+    #[event]
+    struct ClaimEvent has drop, store {
+        row_id: u64,
+        claimant_address: address,
+        amount: u64,
+        timestamp: u64
+    }
+
     /// Initializes the module, creating the shard collection.
     fun init_module(caller: &signer) {
         let (signer_resource, signer_cap) =
@@ -157,6 +173,16 @@ module main::token_lock {
             smart_table::add(&mut token_smart_table, 0, token_lock_table_length);
             simple_map::add(token_address_map, token_address, token_smart_table);
         };
+
+        let lock_event = LockEvent {
+            row_id: token_lock_table_length,
+            admin_address: caller_addr,
+            claimant_address,
+            amount
+        };
+
+        0x1::event::emit(lock_event);
+
     }
 
     public entry fun claim(caller: &signer, row_id: u64) acquires TokenLockCapability {
@@ -210,6 +236,15 @@ module main::token_lock {
         primary_fungible_store::transfer(
             &get_signer(), token_obj, claimant_address, amount
         );
+
+        let claim_event = ClaimEvent {
+            row_id,
+            claimant_address: caller_addr,
+            amount,
+            timestamp: timestamp::now_microseconds()
+        };
+
+        0x1::event::emit(claim_event);
     }
 
     // entry fun finalize(token_address: address) acquires TokenLockCapability {

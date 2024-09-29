@@ -51,8 +51,8 @@ export function TokenLocks() {
   return (
     <>
       <LaunchpadHeader title="Token Locks" />
-      <div className="flex flex-col md:flex-row items-start justify-between px-4 py-2 gap-4 max-w-screen-xl mx-auto">
-        <div className="w-full md:w-2/3 flex flex-col gap-y-4 order-2 md:order-1">
+      <div className="flex flex-col md:flex-row items-start justify-center px-4 py-2 gap-4 max-w-screen-xl mx-auto">
+        <div className="w-full md:w-2/3 flex flex-col gap-y-8 order-2 md:order-1">
           <UploadSpinner on={isUploading} />
           <LabeledInput
             id="asset-name"
@@ -67,15 +67,18 @@ export function TokenLocks() {
 
 
           <TokenUnlockGraph data={graphData} />
+          <h3 className="font-bold text-xl">Token Locks</h3>
           <Table className="max-w-screen-xl mx-auto">
             {!tokenLocks.length && <TableCaption>A list of the tokens locks you have.</TableCaption>}
             <TableHeader>
               <TableRow>
+                <TableHead>ID</TableHead>
+
                 <TableHead>Claimant Address</TableHead>
                 <TableHead>Cliff Date/Time</TableHead>
                 <TableHead>Vesting Duration</TableHead>
                 <TableHead>Periodicity</TableHead>
-                <TableHead>Initial Allocation</TableHead>
+                <TableHead>Allocation</TableHead>
 
               </TableRow>
             </TableHeader>
@@ -84,9 +87,9 @@ export function TokenLocks() {
                 tokenLocks.map((tokenLock, index) => {
                   return (
                     <TableRow key={index}>
+                      <TableCell>{`y${index + 1}`}</TableCell>
+
                       <TableCell>{
-
-
                         <Link
                           to={`https://explorer.aptoslabs.com/account/${tokenLock.claimant_address}?network=${NETWORK}`}
                           target="_blank"

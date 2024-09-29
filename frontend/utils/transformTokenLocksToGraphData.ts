@@ -47,7 +47,7 @@ function addOrUpdateDataPoint(
 ): void {
   const key = date.getTime();
   if (!dataPoints.has(key)) {
-    const point: Omit<DataPoint, 'x'> = { [`${lockIndex + 1}`]: amount };
+    const point: Omit<DataPoint, 'x'> = { [`y${lockIndex + 1}`]: amount };
     dataPoints.set(key, point);
   } else {
     const existingPoint = dataPoints.get(key)!;
