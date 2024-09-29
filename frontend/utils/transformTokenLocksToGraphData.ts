@@ -5,37 +5,39 @@ import { GetTokenLocksByTokenAddressResponse } from "@/view-functions/getTokenLo
 export function transformTokenLocksToGraphData(tokenLocks: GetTokenLocksByTokenAddressResponse): DataPoint[] {
   if (!tokenLocks || tokenLocks.length === 0) return [];
 
+
+  const { earliestCliffDate, latestEndDate } = findDateBoundaries(tokenLocks);
   const dataPoints = new Map<number, Omit<DataPoint, 'x'>>();
 
-  tokenLocks.forEach((lock, index) => {
-    const cliffDate = microsecondsToDate(lock.cliff_timestamp);
+  const currentDate = new Date(earliestCliffDate);
 
-    const vestingEndDate = microsecondsToDate(Number(lock.cliff_timestamp) + Number(lock.vesting_duration));
-    const initialAmount = Number(lock.initial_amount);
-    const periodicityInMs = Number(lock.periodicity);
+  latestEndDate.setDate(latestEndDate.getDate() + 1)
 
-    // Add cliff point
-    addOrUpdateDataPoint(dataPoints, cliffDate, 0, index);
+  while (currentDate <= latestEndDate) {
+    tokenLocks.forEach((lock, index) => {
+      const cliffDate = microsecondsToDate(lock.cliff_timestamp);
 
-    // Add vesting points
-    // let currentDate = new Date(cliffDate);
-    // while (currentDate < vestingEndDate) {
-    //   currentDate = new Date(currentDate.getTime() + periodicityInMs);
-    //   if (currentDate <= vestingEndDate) {
-    //     const vestedAmount = calculateVestedAmount(lock, currentDate);
-    //     addOrUpdateDataPoint(dataPoints, currentDate, vestedAmount, index);
-    //   }
-    // }
+      const vestingEndDate = microsecondsToDate(Number(lock.cliff_timestamp) + Number(lock.vesting_duration));
+      const initialAmount = Number(lock.initial_amount);
+      const periodicityInMs = Number(lock.periodicity)
+      if (currentDate <= cliffDate) {
+        addOrUpdateDataPoint(dataPoints, currentDate, 0, index);
+      } else if (currentDate < vestingEndDate) {
+        addOrUpdateDataPoint(dataPoints, currentDate, (currentDate.getTime() - cliffDate.getTime()) / (vestingEndDate.getTime() - cliffDate.getTime()) * initialAmount, index);
+      } else {
+        addOrUpdateDataPoint(dataPoints, currentDate, initialAmount, index);
+      }
+    })
+    currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+  }
 
-    // Ensure the final vesting point is added
-    addOrUpdateDataPoint(dataPoints, vestingEndDate, initialAmount, index);
-  });
-
+  console.log('dataPoints', dataPoints)
 
   return Array.from(dataPoints.entries())
     .sort(([dateA], [dateB]) => dateA - dateB)
     .map(([date, values]) => ({ x: new Date(date), ...values }));
 }
+
 
 function addOrUpdateDataPoint(
   dataPoints: Map<number, Omit<DataPoint, 'x'>>,
@@ -45,18 +47,29 @@ function addOrUpdateDataPoint(
 ): void {
   const key = date.getTime();
   if (!dataPoints.has(key)) {
-    dataPoints.set(key, { [`y${lockIndex + 1}`]: amount });
+    const point: Omit<DataPoint, 'x'> = { [`${lockIndex + 1}`]: amount };
+    dataPoints.set(key, point);
   } else {
     const existingPoint = dataPoints.get(key)!;
     existingPoint[`y${lockIndex + 1}`] = amount;
   }
 }
 
-function calculateVestedAmount(lock: GetTokenLocksByTokenAddressResponse[number], currentDate: Date): number {
-  const cliffDate = microsecondsToDate(lock.cliff_timestamp);
-  const vestingEndDate = microsecondsToDate(lock.cliff_timestamp + lock.vesting_duration);
-  const totalVestingTime = vestingEndDate.getTime() - cliffDate.getTime();
-  const elapsedTime = currentDate.getTime() - cliffDate.getTime();
-  const vestedPercentage = Math.min(elapsedTime / totalVestingTime, 1);
-  return Math.floor(Number(lock.initial_amount) * vestedPercentage);
+
+
+
+
+function findDateBoundaries(tokenLocks: GetTokenLocksByTokenAddressResponse): { earliestCliffDate: Date; latestEndDate: Date } {
+  let earliestCliffDate = new Date(8640000000000000); // Max date
+  let latestEndDate = new Date(-8640000000000000); // Min date
+
+  tokenLocks.forEach(lock => {
+    const cliffDate = microsecondsToDate(lock.cliff_timestamp);
+    const vestingEndDate = microsecondsToDate(Number(lock.cliff_timestamp) + Number(lock.vesting_duration));
+
+    earliestCliffDate = new Date(Math.min(earliestCliffDate.getTime(), cliffDate.getTime()));
+    latestEndDate = new Date(Math.max(latestEndDate.getTime(), vestingEndDate.getTime()));
+  });
+
+  return { earliestCliffDate, latestEndDate };
 }

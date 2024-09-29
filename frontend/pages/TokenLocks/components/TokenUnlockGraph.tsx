@@ -122,17 +122,17 @@ const TokenUnlockGraph: React.FC<Props> = ({ data }) => {
     if (!data || data.length === 0) {
         return <div>No data available for the graph.</div>;
     }
-    console.log('data', data)
+    // console.log('data', data)
     // Create a dynamic series list based on available y keys
-    // const seriesKeys = Array.from(new Set(
-    //     data.reduce((keys, obj) => {
-    //         Object.keys(obj).forEach(key => {
-    //             if (key !== 'x') keys.add(key);
-    //         });
-    //         return keys;
-    //     }, new Set<string>())
-    // ));
-    const seriesKeys = ['y1']
+    const seriesKeys = Array.from(new Set(
+        data.reduce((keys, obj) => {
+            Object.keys(obj).forEach(key => {
+                if (key !== 'x') keys.add(key);
+            });
+            return keys;
+        }, new Set<string>())
+    ));
+    // const seriesKeys = ['y1']
 
     if (seriesKeys.length === 0) {
         return <div>Invalid data format for the graph.</div>;
