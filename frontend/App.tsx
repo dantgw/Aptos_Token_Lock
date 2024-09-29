@@ -1,8 +1,5 @@
 import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
-// Internal pages
-import { Mint } from "@/pages/Mint";
-import { CreateFungibleAsset } from "@/pages/CreateFungibleAsset";
-import { MyFungibleAssets } from "@/pages/MyFungibleAssets";
+
 import { MyTokenLocks } from "./pages/MyTokenLocks";
 import { CreateTokenLock } from "./pages/CreateTokenLock";
 import { Home } from "./pages/Home";
@@ -22,16 +19,8 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Home />,
+        element: <TokenLocks />,
       },
-      // {
-      //   path: "create-asset",
-      //   element: <CreateFungibleAsset />,
-      // },
-      // {
-      //   path: "my-assets",
-      //   element: <MyFungibleAssets />,
-      // },
       {
         path: "token-locks",
         element: <TokenLocks />,
