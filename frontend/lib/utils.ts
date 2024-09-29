@@ -50,3 +50,7 @@ export function microsecondsToTimeString(microseconds: number): string {
   if (minutes >= 1) return `${Math.round(minutes)} minute${minutes >= 2 ? 's' : ''}`;
   return `${Math.round(seconds)} second${seconds >= 2 ? 's' : ''}`;
 }
+
+export function microsecondsToDate(microseconds: number): Date {
+  return new Date(microseconds / 1000);
+}

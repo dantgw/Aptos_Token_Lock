@@ -1,6 +1,7 @@
 [package]
 name = "main"
 version = "1.0.0"
+upgrade_policy = "immutable"
 
 [addresses]
 main = "53e83f34cc4b73bed84288213a4beca4262ad83cd5473c62bc0479e4db167a46"

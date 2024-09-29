@@ -22,9 +22,13 @@ import { aptosClient } from "@/utils/aptosClient";
 // Entry functions
 import { createTokenLock } from "@/entry-functions/create_token_lock";
 import { DateTimeInput } from "@/components/ui/date-time-input";
-import { dateToMicroseconds, daysToMicroseconds, formatTimeForInput, monthsToMicroseconds } from "@/lib/utils";
+import { dateToMicroseconds, daysToMicroseconds, formatTimeForInput, microsecondsToLocalTime, microsecondsToTimeString, monthsToMicroseconds } from "@/lib/utils";
 import { useGetTokenLocksByTokenAddress } from "@/hooks/useGetTokenLocksByTokenAddress";
 import TokenUnlockGraph from "./components/TokenUnlockGraph";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { truncateAddress } from "@/utils/truncateAddress";
+import { NETWORK } from "@/constants";
+import { transformTokenLocksToGraphData } from "@/utils/transformTokenLocksToGraphData";
 
 export function TokenLocks() {
   // Wallet Adapter provider
@@ -42,7 +46,8 @@ export function TokenLocks() {
 
   const { tokenLocks, refetchTokenLocksByTokenAddress } = useGetTokenLocksByTokenAddress(tokenAddress);
 
-
+  const graphData = transformTokenLocksToGraphData(tokenLocks);
+  console.log("processed graphData", graphData)
   return (
     <>
       <LaunchpadHeader title="Token Locks" />
@@ -59,8 +64,49 @@ export function TokenLocks() {
             type="text"
             value={tokenAddress}
           />
-          <div>{tokenLocks?.[0]?.balance_amount}</div>
-          <TokenUnlockGraph />
+
+
+          <TokenUnlockGraph data={graphData} />
+          <Table className="max-w-screen-xl mx-auto">
+            {!tokenLocks.length && <TableCaption>A list of the tokens locks you have.</TableCaption>}
+            <TableHeader>
+              <TableRow>
+                <TableHead>Claimant Address</TableHead>
+                <TableHead>Cliff Date/Time</TableHead>
+                <TableHead>Vesting Duration</TableHead>
+                <TableHead>Periodicity</TableHead>
+                <TableHead>Initial Allocation</TableHead>
+
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {tokenLocks.length > 0 &&
+                tokenLocks.map((tokenLock, index) => {
+                  return (
+                    <TableRow key={index}>
+                      <TableCell>{
+
+
+                        <Link
+                          to={`https://explorer.aptoslabs.com/account/${tokenLock.claimant_address}?network=${NETWORK}`}
+                          target="_blank"
+                          style={{ textDecoration: "underline" }}
+                        >
+                          {truncateAddress(tokenLock.token_address)}
+                        </Link>
+                      }</TableCell>
+
+                      <TableCell>{microsecondsToLocalTime(tokenLock.cliff_timestamp)}</TableCell>
+                      <TableCell>{microsecondsToTimeString(tokenLock.vesting_duration)}</TableCell>
+                      <TableCell>{microsecondsToTimeString(tokenLock.periodicity)}</TableCell>
+                      <TableCell>{tokenLock.initial_amount}</TableCell>
+
+
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </>
