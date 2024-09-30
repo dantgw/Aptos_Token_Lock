@@ -277,13 +277,14 @@ module main::token_lock {
         let user_address_map = &borrow_global<TokenLockCapability>(capability_address()).user_address_map;
         let user_smart_table = simple_map::borrow(user_address_map, &user_addr);
         let row_ids = smart_table::keys(user_smart_table);
+        let user_smart_table_length = smart_table::length(user_smart_table);
         let output: vector<LockedTokenRow> = vector::empty();
         let i = 0;
-        let len = vector::length(&row_ids);
         
-        while (i < len) {
-            let row_id = vector::borrow(&row_ids, i);
-            let locked_token_row = get_token_lock_row(*row_id);
+        while (i < user_smart_table_length) {
+            let row_id = smart_table::borrow(user_smart_table, i);
+            let token_lock_table = &borrow_global<TokenLockCapability>(capability_address()).token_lock_table;
+            let locked_token_row = *smart_table::borrow(token_lock_table, *row_id);
             vector::push_back(&mut output, locked_token_row);
             i = i + 1;
         };
@@ -294,14 +295,17 @@ module main::token_lock {
     public fun get_token_locks_by_token_address(token_addr: address): vector<LockedTokenRow> acquires TokenLockCapability {
         let token_address_map = &borrow_global<TokenLockCapability>(capability_address()).token_address_map;
         let token_smart_table = simple_map::borrow(token_address_map, &token_addr);
-        let row_ids = smart_table::keys(token_smart_table);
+        // let keys = smart_table::keys(token_smart_table);
+        let token_smart_table_length = smart_table::length(token_smart_table);
         let output: vector<LockedTokenRow> = vector::empty();
         let i = 0;
-        let len = vector::length(&row_ids);
+        // let len = vector::length(&keys);
         
-        while (i < len) {
-            let row_id = vector::borrow(&row_ids, i);
-            let locked_token_row = get_token_lock_row(*row_id);
+        while (i < token_smart_table_length) {
+            let row_id = smart_table::borrow(token_smart_table, i);
+            let token_lock_table = &borrow_global<TokenLockCapability>(capability_address()).token_lock_table;
+            let locked_token_row = *smart_table::borrow(token_lock_table, *row_id);
+            // let locked_token_row = get_token_lock_row(*row_id);
             vector::push_back(&mut output, locked_token_row);
             i = i + 1;
         };
