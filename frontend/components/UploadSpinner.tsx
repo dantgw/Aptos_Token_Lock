@@ -12,7 +12,7 @@ export const UploadSpinner: FC<{ on: boolean }> = ({ on }) => {
         on ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none",
       )}
     >
-      <p className="display">Uploading Files...</p>
+      <p className="display">Transaction in progress...</p>
       <Spinner size="lg" />
     </div>
   );

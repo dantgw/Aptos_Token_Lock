@@ -3,20 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 
 // Internal components
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { WarningAlert } from "@/components/ui/warning-alert";
 import { UploadSpinner } from "@/components/UploadSpinner";
 import { LabeledInput } from "@/components/ui/labeled-input";
-import { ConfirmButton } from "@/components/ui/confirm-button";
 import { LaunchpadHeader } from "@/components/LaunchpadHeader";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast"
 
 // Internal utils
-import { aptosClient } from "@/utils/aptosClient";
 
 import { microsecondsToLocalTime, microsecondsToTimeString, monthsToMicroseconds } from "@/lib/utils";
 import { useGetTokenLocksByTokenAddress } from "@/hooks/useGetTokenLocksByTokenAddress";
@@ -30,7 +22,6 @@ export function TokenLocks() {
   // Wallet Adapter provider
 
   const aptosWallet = useWallet();
-  const { account, wallet, signAndSubmitTransaction } = useWallet();
   const { toast } = useToast()
 
 
@@ -56,7 +47,7 @@ export function TokenLocks() {
             tooltip="The address of the asset, e.g. 0x..."
             required
             onChange={(e) => setTokenAddress(e.target.value)}
-            disabled={isUploading || !account}
+            disabled={false}
             type="text"
             value={tokenAddress}
           />
