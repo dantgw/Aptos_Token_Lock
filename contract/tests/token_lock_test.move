@@ -12,6 +12,8 @@ module main::token_lock_test {
     use std::error;
     use std::option;
     use std::signer;
+    use std::vector;
+
     use std::string::{Self};
     use aptos_framework::timestamp;
 
@@ -200,6 +202,112 @@ module main::token_lock_test {
         token_lock::claim(user1, 0);
         assert!(und::und_balance(user1_addr) == 40_000_000, 0);
     }
+
+    #[test(creator = @main, user1 = @0x456, user2 = @0x789, aptos_framework = @aptos_framework)]
+    public fun test_add_multiple_locks(
+        creator: &signer, user1: &signer, user2: &signer, aptos_framework: &signer
+    ) {
+        und::initialize_for_test(creator);
+        token_lock::initialize_for_test(creator);
+        timestamp::set_time_has_started_for_testing(aptos_framework);
+
+        let user1_addr = signer::address_of(user1);
+        let user2_addr = signer::address_of(user2);
+        let creator_addr = signer::address_of(creator);
+
+        und::mint_und(creator, 100_000_000);
+        assert!(und::und_balance(creator_addr) == 100_000_000, 0);
+
+        let deposit_amount = 1_000_000;
+        let cliff_timestamp = 100_000;
+        let vesting_duration = 100_000;
+        let periodicity = 1000;
+        let claimant_address = user1_addr;
+
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, claimant_address 
+            );
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, user2_addr 
+            );
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, claimant_address 
+            );
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, user2_addr 
+            );
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, claimant_address 
+            );
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, user2_addr 
+            );
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, claimant_address 
+            );
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, user2_addr 
+            );
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, user2_addr 
+            );
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, user2_addr 
+            );
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, user2_addr 
+            );
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, user2_addr 
+            );
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, user2_addr 
+            );
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, user2_addr 
+            );
+        token_lock::add_token_lock(
+            creator, und::und_token_address(),
+            deposit_amount, cliff_timestamp,
+            vesting_duration, periodicity, user2_addr 
+            );
+        let locks = token_lock::get_token_locks_by_token_address(und::und_token_address());
+        assert!(vector::length(&locks) == 15, 0);
+        let claimant_locks = token_lock::get_token_locks_by_user(claimant_address);
+        let user2_locks = token_lock::get_token_locks_by_user(user2_addr);
+        assert!(vector::length(&claimant_locks) == 4, 0);
+        assert!(vector::length(&user2_locks) == 11, 0);
+
+    }
+
 
     #[test(creator = @main, user1 = @0x456, user2 = @0x789, aptos_framework = @aptos_framework)]
     #[expected_failure(abort_code = EPERIOD_NOT_PASSED, location = main::token_lock)]

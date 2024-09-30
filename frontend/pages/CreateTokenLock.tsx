@@ -52,7 +52,13 @@ export function CreateTokenLock() {
   const onCreateTokenLock = async () => {
     try {
       if (!account) throw new Error("Connect wallet first");
-
+      console.log("Creating token lock...");
+      console.log("Token Address:", tokenAddress);
+      console.log("Amount:", amount);
+      console.log("Cliff Timestamp:", dateToMicroseconds(cliffDateTime));
+      console.log("Vesting Duration:", vestingDuration);
+      console.log("Periodicity:", periodicity);
+      console.log("Claimant Address:", claimantAddress);
       // Set internal isUploading state
       setIsUploading(true);
 
@@ -225,6 +231,12 @@ export function CreateTokenLock() {
               <>
                 <p>
                   Please ensure that the entered fields are correct.
+                  {/* Cliffdate {cliffDateTime.toLocaleString()}
+                  Vesting Duration {vestingDuration}
+                  Periodicity {periodicity}
+                  Amount {amount}
+                  Token Address {tokenAddress}
+                  Claimant Address {claimantAddress} */}
                   Proceed to sign the Token Lock Transaction to continue.
                 </p>
               </>

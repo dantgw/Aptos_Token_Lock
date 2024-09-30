@@ -41,7 +41,7 @@ export function TokenLocks() {
   const [isUploading, setIsUploading] = useState(false);
 
   const { tokenLocks, refetchTokenLocksByTokenAddress } = useGetTokenLocksByTokenAddress(tokenAddress);
-
+  console.log("tokenLocks", tokenLocks)
   const graphData = transformTokenLocksToGraphData(tokenLocks);
   console.log("processed graphData", graphData)
   return (
@@ -65,7 +65,7 @@ export function TokenLocks() {
           <TokenUnlockGraph data={graphData} />
           <h3 className="font-bold text-xl">Token Locks</h3>
           <Table className="max-w-screen-xl mx-auto">
-            {!tokenLocks.length && <TableCaption>A list of the tokens locks you have.</TableCaption>}
+            {!tokenLocks?.length && <TableCaption>A list of the tokens locks you have.</TableCaption>}
             <TableHeader>
               <TableRow>
                 <TableHead>ID</TableHead>
@@ -79,11 +79,11 @@ export function TokenLocks() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {tokenLocks.length > 0 &&
-                tokenLocks.map((tokenLock, index) => {
+              {tokenLocks?.length > 0 &&
+                tokenLocks?.map((tokenLock, index) => {
                   return (
-                    <TableRow key={index}>
-                      <TableCell>{`y${index + 1}`}</TableCell>
+                    <TableRow key={tokenLock.row_id}>
+                      <TableCell>{`y${tokenLock.row_id}`}</TableCell>
 
                       <TableCell>{
                         <Link
@@ -91,7 +91,7 @@ export function TokenLocks() {
                           target="_blank"
                           style={{ textDecoration: "underline" }}
                         >
-                          {truncateAddress(tokenLock.token_address)}
+                          {truncateAddress(tokenLock.claimant_address)}
                         </Link>
                       }</TableCell>
 

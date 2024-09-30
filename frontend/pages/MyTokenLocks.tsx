@@ -72,6 +72,7 @@ export function MyTokenLocks() {
   useEffect(() => {
     console.log("tokenLocks", tokenLocks)
   }, [tokenLocks])
+
   return (
     <>
       <LaunchpadHeader title="My Token Locks" />
